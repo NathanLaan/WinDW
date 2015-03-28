@@ -32,6 +32,7 @@ namespace WinDW
         {
             this._diceWareWordList = new Dictionary<string, string>();
             this._random = new Random();
+            this.LoadFile();
             InitializeComponent();
         }
 
