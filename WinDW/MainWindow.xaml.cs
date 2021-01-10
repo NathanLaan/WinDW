@@ -39,15 +39,11 @@ namespace WinDW
         private void RibbonButton_Click(object sender, RoutedEventArgs e)
         {
             this.btnGeneratePassword.IsEnabled = false;
-            Task task = Task.Factory.StartNew(() =>
+            Task tk = Task.Factory.StartNew(() =>
             {
                 PasswordGenerationWorker();
             });
-            //task.Wait();
-        }
-
-        private void PasswordGenerationWorkerCompleted()
-        {
+            tk.Wait();
             this.btnGeneratePassword.IsEnabled = true;
         }
 
@@ -61,73 +57,21 @@ namespace WinDW
                 using (StreamReader reader = new StreamReader(stream))
                 {
                     string diceWareText = reader.ReadToEnd();
-                    string[] lines = diceWareText.Split(new string[] { Environment.NewLine, "\n" }, StringSplitOptions.None);
-                    foreach (string line in lines)
-                    {
-                        string[] keyAndValue = line.Split(new string[]{"\t"}, StringSplitOptions.None);
-                        try
-                        {
-                            this._diceWareWordList.Add(keyAndValue[0], keyAndValue[1]);
-                        }
-                        catch (Exception exception)
-                        {
-                            MessageBox.Show(this, "Error loading DiceWareWordList: " + exception.ToString());
-                        }
-                    }
+                    string[] lines = diceWareText.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
                 }
             }
         }
 
-        private void UpdateOutput(string value)
-        {
-            this.txtOutput.AppendText(this._diceWareWordList[value]);
-            this.txtOutput.AppendText(" ");
-        }
+
 
         public void PasswordGenerationWorker()
         {
-            for (int i = 0; i < 6; i++)
+            Dispatcher.CurrentDispatcher.Invoke(new Action(() =>
             {
-                Application.Current.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    UpdateOutput(GenerateFiveDigitNumber());
-                }));
-
-                Thread.Sleep(500);
-            }
-
-            //
-            // Action when complete.
-            //
-            Application.Current.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                PasswordGenerationWorkerCompleted();
+                //UpdateOutput(value);
             }));
-        }
 
-
-        /// <summary>
-        /// Min = 11111
-        /// Max = 66666
-        /// </summary>
-        private string GenerateFiveDigitNumber()
-        {
-            StringBuilder val = new StringBuilder();
-
-            int numRandomLoops = this._random.Next(0, 5);
-            int count = 0;
-            do
-            {
-                int newValue = 0;
-                int numRandomLoopsCount = 0;
-                do
-                {
-                    newValue = this._random.Next(1, 7);
-                } while (numRandomLoopsCount++ < numRandomLoops);
-                val.Append(newValue);
-            } while (count++ < 4);
-
-            return val.ToString();
+            Thread.Sleep(1000);
         }
 
     }
